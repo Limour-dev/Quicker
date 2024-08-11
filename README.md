@@ -1,5 +1,6 @@
 # Quicker
 ```conda
+conda install conda-forge::mamba
 mamba create -n Quicker conda-forge::pyperclip conda-forge::keyboard
 # conda install conda-forge::pyperclip conda-forge::keyboard
 ```
