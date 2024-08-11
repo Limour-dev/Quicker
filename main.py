@@ -1,13 +1,17 @@
 import keyboard, time
 
+import mods.m03_windows as wnd
+
+import importlib
+
+hwnd = wnd.GetForegroundWindow()
+
 
 def showAndHideWindow():
-    from mods.m03_windows import GetForegroundWindow, ShowWindow
-    hwnd = GetForegroundWindow()
     while True:
-        ShowWindow(hwnd, 0)
+        wnd.ShowWindow(hwnd, 0)
         yield 'showAndHideWindow: 隐藏窗口'
-        ShowWindow(hwnd, 1)
+        wnd.ShowWindow(hwnd, 1)
         yield 'showAndHideWindow: 显示窗口'
 
 
@@ -15,9 +19,45 @@ showAndHideWindow = showAndHideWindow()
 
 
 def hotkey_showAndHideWindow():
-    print(time.ctime(), next(showAndHideWindow))
+    print(time.ctime(), 'alt+l', next(showAndHideWindow))
+
+
+def get_all_files_in_directory(directory, ext=''):
+    import re, os
+    custom_sort_key_re = re.compile('([0-9]+)')
+
+    def custom_sort_key(s):
+        # 将字符串中的数字部分转换为整数，然后进行排序
+        return [int(x) if x.isdigit() else x for x in custom_sort_key_re.split(s)]
+
+    all_files = []
+    for root, dirs, files in os.walk(directory):
+        root: str = root[len(directory):]
+        root.replace(os.path.sep, '.')
+        for file in files:
+            if file.endswith(ext):
+                file_path = root + '.' + file[:-len(ext)]
+                all_files.append(file_path)
+    return sorted(all_files, key=custom_sort_key)
+
+
+def hotkey_plugin_create(_path):
+    plugin = importlib.import_module(_path, 'Plugins')
+
+    def hotkey_plugin():
+        print(time.ctime(), plugin.hotkey, _path)
+        plugin.callback()
+
+    print(time.ctime(), 'plugin_create', _path)
+    return plugin.hotkey, plugin.timeout, hotkey_plugin
 
 
 if __name__ == '__main__':
     keyboard.add_hotkey('alt+l', hotkey_showAndHideWindow)
-    keyboard.wait()
+    Plugins = get_all_files_in_directory('Plugins', '.py')
+    for path in Plugins:
+        hotkey, timeout, callback = hotkey_plugin_create(path)
+        keyboard.add_hotkey(hotkey, callback, timeout=timeout)
+    if wnd.GetWindowText(hwnd) == 'Quicker':
+        hotkey_showAndHideWindow()  # 隐藏窗口
+        keyboard.wait()
