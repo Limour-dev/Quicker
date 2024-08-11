@@ -1,10 +1,12 @@
 import keyboard, time
 
 import mods.m03_windows as wnd
+from mods.m08_runAfter import runAfter
 
 import importlib
 
 hwnd = wnd.GetForegroundWindow()
+after = runAfter(0.1)
 
 
 def showAndHideWindow():
@@ -46,7 +48,7 @@ def hotkey_plugin_create(_path):
 
     def hotkey_plugin():
         print(time.ctime(), plugin.hotkey, _path)
-        plugin.callback()
+        after(0, plugin.callback, after)
 
     print(time.ctime(), 'plugin_create', _path)
     return plugin.hotkey, plugin.timeout, hotkey_plugin

@@ -11,7 +11,7 @@ except ModuleNotFoundError:
 # https://github.com/mhammond/pywin32
 
 
-hotkey = 'ctrl+1'
+hotkey = 'alt+1'
 timeout = 2
 
 
@@ -27,7 +27,7 @@ def typesetting(_text: str):
             continue
         lastC = res[-1][-1]
         if (lastC.isalpha() or lastC == ',') and line[0].isalpha():  # 断开的两行单词
-            res.append(' '+ line)
+            res.append(' ' + line)
             continue
         if lastC in {'.', '。', '!', '！', '?', '？'}:
             res.append('\n' + line)
@@ -36,15 +36,21 @@ def typesetting(_text: str):
     return ''.join(res)
 
 
-def callback():
+def ctrlV():
+    keyboard.send('ctrl+v')
+
+
+def callback(after):
     hwnd = wnd.GetForegroundWindow()
     print(hwnd, wnd.GetWindowText(hwnd))
     # 尝试了一万种方法，发送Ctrl+C失败。。。
     # 只能改成发送Ctrl+V了。。。
     pyperclip.copy(typesetting(pyperclip.paste()))
-    keyboard.send('ctrl+v')
+    after(0.5, ctrlV)
 
 
 if __name__ == '__main__':
-    keyboard.add_hotkey(hotkey, callback, timeout=timeout)
+    from mods.m08_runAfter import runAfter
+    after = runAfter(0.1)
+    keyboard.add_hotkey(hotkey, callback, args=(after,), timeout=timeout)
     keyboard.wait()
