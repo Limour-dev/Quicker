@@ -26,6 +26,11 @@ def typesetting(_text: str):
             res.append(line)
             continue
         lastC = res[-1][-1]
+        if lastC == '-' and line[0].isalpha():  # 连字符
+            if len(res[-1]) >=2 and res[-1][-2].isalpha():
+                res[-1] = res[-1][:-1]
+                res.append(line)
+                continue
         if (lastC.isalpha() or lastC == ',') and line[0].isalpha():  # 断开的两行单词
             res.append(' ' + line)
             continue
