@@ -43,23 +43,40 @@ def get_all_files_in_directory(directory, ext=''):
     return sorted(all_files, key=custom_sort_key)
 
 
+def wait4release(_hotkey: str):
+    _keys = _hotkey.split('+')
+    while True:
+        if not any(keyboard.is_pressed(key) for key in _keys):
+            break
+        time.sleep(0.01)
+    # print(list((key, keyboard.is_pressed(key)) for key in _keys))
+
+
 def hotkey_plugin_create(_path):
     plugin = importlib.import_module(_path, 'Plugins')
 
+    def hotkey_callback():
+        wait4release(plugin.hotkey)
+        plugin.callback(after)
+
     def hotkey_plugin():
         print(time.ctime(), plugin.hotkey, _path)
-        after(0, plugin.callback, after)
+        after(0, hotkey_callback)
 
-    print(time.ctime(), 'plugin_create', _path)
+    print(time.ctime(), 'plugin_create', plugin.hotkey, _path)
     return plugin.hotkey, plugin.timeout, hotkey_plugin
 
 
-if __name__ == '__main__':
+def main():
     keyboard.add_hotkey('alt+l', hotkey_showAndHideWindow)
     Plugins = get_all_files_in_directory('Plugins', '.py')
     for path in Plugins:
         hotkey, timeout, callback = hotkey_plugin_create(path)
         keyboard.add_hotkey(hotkey, callback, timeout=timeout)
+
+
+if __name__ == '__main__':
+    main()
     if wnd.GetWindowText(hwnd) == 'Quicker':
         hotkey_showAndHideWindow()  # 隐藏窗口
         keyboard.wait()
