@@ -46,7 +46,7 @@ def callback(after):
     # 尝试了一万种方法，发送Ctrl+C失败。。。
     # 只能改成发送Ctrl+V了。。。
     pyperclip.copy(typesetting(pyperclip.paste()))
-    after(0.5, ctrlV)
+    after(0.1, ctrlV)
 
 
 if __name__ == '__main__':
