@@ -31,6 +31,9 @@ class runAfter:
         self.m.start()
 
     def __call__(self, intervals, callback, *args):
+        if intervals <= 0:
+            self.q.put((intervals, callback, args))
+            return
         task = (time.time() + intervals, callback, args)
         with self.l:
             self.t.add(task)
