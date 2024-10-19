@@ -2,11 +2,13 @@ import keyboard, time
 
 import mods.m03_windows as wnd
 from mods.m08_runAfter import runAfter
+from mods.m99_ai import AI
 
 import importlib
 
 hwnd = wnd.GetForegroundWindow()
 after = runAfter(0.1)
+after.AI = AI
 
 
 def showAndHideWindow():
