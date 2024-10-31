@@ -21,7 +21,7 @@ r_1 = re.compile(r'\s*\n[\n\r\s]*\n')
 def typesetting(_text: str):
     res = _text.replace('**', '')
     res = r_1.sub('\n', res)
-    return res
+    return res.strip()
 
 
 def ctrlV():
