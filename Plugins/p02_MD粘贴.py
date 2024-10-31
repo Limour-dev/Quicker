@@ -1,4 +1,5 @@
 import pyperclip, keyboard, time
+import re
 
 try:
     import mods.m03_windows as wnd
@@ -14,9 +15,12 @@ except ModuleNotFoundError:
 hotkey = 'alt+2'
 timeout = 2
 
+r_1 = re.compile(r'\s*\n[\n\r\s]*\n')
+
 
 def typesetting(_text: str):
     res = _text.replace('**', '')
+    res = r_1.sub('\n', res)
     return res
 
 
@@ -35,6 +39,7 @@ def callback(after):
 
 if __name__ == '__main__':
     from mods.m08_runAfter import runAfter
+
     after = runAfter(0.1)
     keyboard.add_hotkey(hotkey, callback, args=(after,), timeout=timeout)
     keyboard.wait()
