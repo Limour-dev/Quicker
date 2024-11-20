@@ -313,7 +313,7 @@ class WindowsBalloonTip:
         WindowsBalloonTip._lock.release()
         return val
 
-    def __init__(self, title, message, app_name, app_icon='',
+    def __init__(self, app_icon='',
                  **kwargs):
         '''
         The app_icon parameter, if given, is an .ICO file.
@@ -367,9 +367,6 @@ class WindowsBalloonTip:
                 None,
                 ctypes.cast(IDI_APPLICATION, LPCWSTR)
             )
-
-        # show the notification
-        self.notify(title, message, app_name)
 
     def __del__(self):
         '''
@@ -432,18 +429,29 @@ class WindowsBalloonTip:
 
 import asyncio
 
+mW = None
+
+
+def _init():
+    global mW
+    if not mW:
+        mW = WindowsBalloonTip()
+
 
 async def message(_text: str, timeout: int = 1, wnd=None):
-    m = WindowsBalloonTip(
+    # show the notification
+    _init()
+    if wnd:
+        wnd.ShowWindow(mW._hwnd, 1)
+    mW.notify(
         title='Quicker',
         message=_text,
-        app_name='Quicker',
-        timeout=timeout
+        app_name='Quicker'
     )
-    if wnd:
-        wnd.ShowWindow(m._hwnd, 1)
     await asyncio.sleep(timeout)
-    del m
+    mW.remove_notify()
+    if wnd:
+        wnd.ShowWindow(mW._hwnd, 0)
 
 
 def callback(after, wnd):
@@ -454,5 +462,9 @@ def callback(after, wnd):
 
 
 if __name__ == '__main__':
-    asyncio.run(message('测试'))
-    asyncio.run(message('测试'))
+    async def main():
+        for i in range(1000):
+            await message(f'测试{i}')
+
+
+    asyncio.run(main())
