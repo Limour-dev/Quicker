@@ -1,9 +1,6 @@
 import asyncio
 import inspect
-import time
-from threading import Thread, Lock
-
-from sortedcontainers import SortedList
+from threading import Thread
 
 
 class runAfter:
@@ -14,52 +11,31 @@ class runAfter:
         self.loop.close()
 
     def __init__(self, intervals=0.001):
-        self.q = asyncio.Queue()
         self.loop = asyncio.new_event_loop()
         self.ep = Thread(target=self.event_loop, daemon=True)
         self.ep.start()
-        self.run(self.clock_loop())
-        self.L = Lock()
-        self.t = SortedList(key=lambda x: x[0])
-        self.run(self.manager_loop(intervals))
 
     def __call__(self, intervals, callback, *args):
+        task = self.try_call(callback, args)
         if intervals <= 0:
-            task = self.q.put((intervals, callback, args))
             self.run(task)
             return
-        task = (time.time() + intervals, callback, args)
-        with self.L:  # 锁里不要 await
-            self.t.add(task)
+        self.loop.call_later(intervals, self.run, task)
 
     def run(self, task):
         asyncio.run_coroutine_threadsafe(task, self.loop)
 
-    async def manager_loop(self, intervals):
-        while True:
-            if self.t:
-                with self.L:  # 锁里不要 await
-                    idx = self.t.bisect_right((time.time(),))
-                    if idx > 0:
-                        # print(self.t)
-                        for task in self.t[:idx]:
-                            self.run(self.q.put(task))
-                        del self.t[:idx]
-                        # print(self.t)
-            await asyncio.sleep(intervals)
-
-    async def clock_loop(self):
-        while True:
-            try:
-                task = await self.q.get()
-                task = task[1](*task[2])
-                if inspect.iscoroutine(task):
-                    self.run(task)
-            except Exception as e:
-                print(e)
+    async def try_call(self, callback, args):
+        try:
+            task = callback(*args)
+            if inspect.iscoroutine(task):
+                self.run(task)
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':
+    import time
     after = runAfter()
 
 
