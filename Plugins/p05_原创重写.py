@@ -14,6 +14,9 @@ system_prompt = r'''response_language: zh-CN
 def callback(after):
     text = typesetting(pyperclip.paste())
     text = after.AI(system_prompt, text, 0)
+    text: str = text.replace(',', '，')
+    text: str = text.replace('(', '（')
+    text: str = text.replace(')', '）')
     pyperclip.copy(text)
     after(0.1, ctrlV)
 
