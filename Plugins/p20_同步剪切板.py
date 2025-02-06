@@ -36,12 +36,13 @@ async def paste(text):
     return response.json()['input']
 
 async def callback(after):
-    global cb_c_hash
+    global cb_c_hash, monitor_clipboard_hash
     c_h = await getHash()
     if cb_c_hash != c_h:
         pyperclip.copy(await copy())
         cb_c_hash = c_h
         print(time.ctime(), f'同步剪贴板<-服务器：{cb_c_hash}')
+        monitor_clipboard_hash = hash(pyperclip.paste())
     ctrlV()
 
 monitor_clipboard_hash = 0
