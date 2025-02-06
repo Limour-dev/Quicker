@@ -1,3 +1,17 @@
+def dotenv():
+    import os
+    with open('.env', 'r', encoding='utf-8') as env:
+        for line in env:
+            tmp = line.strip().split('=', maxsplit=1)
+            if len(tmp) <= 1:
+                continue
+            k, v = tmp[0].strip(), tmp[1].strip()
+            if (not k) or (not v):
+                continue
+            os.environ[k] = v
+
+dotenv()
+
 import keyboard, time, asyncio
 
 import mods.m03_windows as wnd
