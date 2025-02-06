@@ -104,6 +104,7 @@ def hotkey_plugin_create(_path):
             print(_path, '目标程序不符合，忽略快捷键')
             return
         await wait4release(hotkey)
+        after.hotkey = hotkey
         after(0, plugin.callback, after)
 
     def hotkey_plugin(hotkey):
