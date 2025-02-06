@@ -4,6 +4,8 @@ from typing import Callable, Any
 import json, httpx
 from functools import wraps
 
+_timeout = httpx.Timeout(120.0, connect=10.0)
+
 
 def check_async():
     # 检查当前函数是否在协程中调用
@@ -46,14 +48,14 @@ def auto_async(func: Callable) -> Callable:
 
 def _post_sync(url: str, data: bytes, headers: dict, warp: Callable = None):
     with httpx.Client() as client:
-        response = client.post(url, content=data, headers=headers)
+        response = client.post(url, content=data, headers=headers, timeout=_timeout)
     return warp(response.content) if warp else response.content
 
 
 async def _post_async(url: str, data: bytes, headers: dict, warp: Callable = None):
     # 建立连接
     async with httpx.AsyncClient() as client:
-        response = await client.post(url, content=data, headers=headers)
+        response = await client.post(url, content=data, headers=headers, timeout=_timeout)
     return warp(response.content) if warp else response.content
 
 
