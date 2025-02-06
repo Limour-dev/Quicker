@@ -85,6 +85,11 @@ def hotkey_plugin_create(_path):
     plugin = importlib.import_module(_path, 'Plugins')
 
     try:
+        after(0, plugin.init, after)
+    except AttributeError:
+        pass
+
+    try:
         tt_path = plugin.t_path
     except AttributeError:
         tt_path = ''
