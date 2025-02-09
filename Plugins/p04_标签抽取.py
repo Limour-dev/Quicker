@@ -24,4 +24,4 @@ async def processing(_text: str, after):
 async def callback(after):
     res = await processing(pyperclip.paste(), after)
     pyperclip.copy(res)
-    after.msg('抽取完成！')
+    # after.msg('抽取完成！')
