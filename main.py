@@ -1,5 +1,8 @@
+import sys, os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+print(sys.path)
+
 def dotenv():
-    import os
     with open('.env', 'r', encoding='utf-8') as env:
         for line in env:
             tmp = line.strip().split('=', maxsplit=1)
