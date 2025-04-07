@@ -20,7 +20,9 @@ async def getHash():
 async def copy():
     async with httpx.AsyncClient() as client:
         response = await client.get(f'{FASTAPI_URL}/copy', headers=FASTAPI_KEY)
-    return response.json()['input']
+    res = response.json()
+    # print(res)
+    return res['input']
 
 async def paste(text):
     headers = {
@@ -32,7 +34,9 @@ async def paste(text):
     }
     async with httpx.AsyncClient() as client:
         response = await client.post(f'{FASTAPI_URL}/paste', headers=headers, json=data)
-    return response.json()['hash']
+    res = response.json()
+    # print(res)
+    return res['hash']
 
 async def callback(after):
     if after.hotkey == hotkey[0]:
